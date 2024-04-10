@@ -1,4 +1,4 @@
-from flask import Flask, render_template # Importa a classe Flask
+from flask import Flask, render_template, request, redirect
 
 
 class Jogo:
@@ -12,15 +12,32 @@ jogo1 = Jogo('Tetris', 'Puzzle', 'Atari')
 jogo2 = Jogo('God of War', 'Hack and Slash', 'PS2')
 jogo3 = Jogo('Tomb Raider', 'Ação-Aventura', 'PS4')
 
-lista_jogos = [jogo1, jogo2, jogo3]
+lista = [jogo1, jogo2, jogo3]
     
 app = Flask(__name__) # Cria uma instância da classe Flask
 
 
 @app.route("/")
 def home():
-    return render_template('index.html', titulo="Jogos", jogos=lista_jogos)
+    return render_template('index.html', titulo="Jogos", jogos=lista)
+
+
+@app.route("/cadastro")
+def cadastro():
+    return render_template('cadastro.html', titulo="Jogos")
+
+
+@app.route("/criar", methods=['POST',])
+def criar():
+    nome = request. form['nome']
+    categoria = request. form['categoria']
+    console = request. form['console']
+    jogo = Jogo(nome, categoria, console)
+
+    lista.append(jogo)
+    
+    return redirect('/')
 
 
 # app.run() # Localhost
-app.run(host='0.0.0.0', port=8080) # Pode ser acessado por pessoas conectadas nessa rede
+app.run(debug=True) # Pode ser acessado por pessoas conectadas nessa rede
