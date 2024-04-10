@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, url_for
 
 
 class Jogo:
@@ -13,7 +13,21 @@ jogo2 = Jogo('God of War', 'Hack and Slash', 'PS2')
 jogo3 = Jogo('Tomb Raider', 'Ação-Aventura', 'PS4')
 
 lista = [jogo1, jogo2, jogo3]
-    
+
+
+class Usuario:
+    def __init__(self, nome, nickname, senha):
+        self.nome = nome
+        self.nickname = nickname
+        self.senha = senha
+
+usuario1 = Usuario("Danilo", "dandrade", "123")
+usuario2 = Usuario("Luane", "luanealmeida", "456")
+
+usuarios = { usuario1.nickname : usuario1,
+             usuario2.nickname : usuario2 }
+
+
 app = Flask(__name__) # Cria uma instância da classe Flask
 app.secret_key = 'dragonballz'
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
@@ -21,16 +35,18 @@ app.config['SESSION_COOKIE_SECURE'] = True
 
 
 @app.route('/')
-def home():
+def index():
     return render_template('index.html', titulo='Jogos', jogos=lista)
 
 
 @app.route('/cadastro')
 def cadastro():
-    return render_template('cadastro.html', titulo='Jogos')
+    if 'usuario_logado' not in session or session['usuario_logado'] == None:
+        return redirect(url_for('login', next=url_for('cadastro')))
+    return render_template('cadastro.html', titulo='Novo Jogo')
 
 
-@app.route('/criar', methods=['POST',])
+@app.route('/criar', methods=['POST'])
 def criar():
     nome = request. form['nome']
     categoria = request. form['categoria']
@@ -39,32 +55,36 @@ def criar():
 
     lista.append(jogo)
     
-    return redirect('/')
+    return redirect(url_for('index'))
 
 
 @app.route('/login')
 def login():
-    return render_template('login.html')
+    next = request.args.get('next')
+    return render_template('login.html', next=next)
 
-@app.route('/autenticar', methods=['POST',])
+@app.route('/autenticar', methods=['POST'])
 def autenticar():
-    if request.form['senha'] == 'goku':
-        session['usuario_logado'] = request.form['usuario']
-        flash(f'{session['usuario_logado']} logado com sucesso.')
-        return redirect('/')
+    if request.form['usuario'] in usuarios:
+        usuario = usuarios[request.form['usuario']]
+        if request.form['senha'] == usuario.senha:
+            session['usuario_logado'] = usuario.nickname
+            flash(usuario.nickname + ' logado com sucesso!')
+            proxima_pagina = request.form['next']
+            return redirect(proxima_pagina)
     else:
-        flash('Dados incorretos! Tente novamente.')
-        return redirect('/login')
+        flash('Usuário não logado.')
+        return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
     if session['usuario_logado'] == None:
         flash('Nenhum usuário está logado')
-        return redirect('/')
+        return redirect(url_for('index'))
     else:
         session['usuario_logado'] = None
         flash('Logout efetuado com sucesso')
-        return redirect('/')
+        return redirect(url_for('index'))
 
 # app.run() # Localhost
 app.run(debug=True) # Pode ser acessado por pessoas conectadas nessa rede
