@@ -7,11 +7,11 @@ SESSION_COOKIE_SECURE = True
 
 SQLALCHEMY_DATABASE_URI = \
     '{sgbd}://{usuario}:{senha}@{servidor}/{database}'.format(
-        sgbd = 'mysql',
-        usuario = 'root',
-        senha = 'admin',
-        servidor = '172.17.0.2',
-        database = 'jogoteca'
-    ) # 'mysql://root:admin@172.17.0.2/jogoteca'
+        sgbd='mysql+mysqlconnector',
+        usuario='root',
+        senha='admin',
+        servidor='localhost',
+        database='jogoteca'
+    )
 
 UPLOAD_PATH = os.path.dirname(os.path.abspath(__file__)) + '/uploads'

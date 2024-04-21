@@ -64,7 +64,7 @@ def atualizar():
     arquivo = request.files['capa']
     upload_path = app.config['UPLOAD_PATH']
     timestamp = time.time()
-    deleta_arquivo(id)
+    deleta_arquivo(jogo.id)
     
     arquivo.save(f'{upload_path}/capa{jogo.id}-{timestamp}.jpg')
 
