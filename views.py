@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, session, flash, url_for, send_from_directory
 from jogoteca import app, db
 from models import Jogos, Usuarios
-from helpers import recupera_imagem, deleta_arquivo
+from helpers import recupera_imagem, deleta_arquivo, FormularioJogo
 import time
 
 @app.route('/')
@@ -14,14 +14,22 @@ def index():
 def cadastro():
     if 'usuario_logado' not in session or session['usuario_logado'] == None:
         return redirect(url_for('login', next=url_for('cadastro')))
-    return render_template('cadastro.html', titulo='Novo Jogo')
+    
+    form = FormularioJogo()
+
+    return render_template('cadastro.html', titulo='Novo Jogo', form=form)
 
 
 @app.route('/criar', methods=['POST',])
 def criar():
-    nome = request.form['nome']
-    categoria = request.form['categoria']
-    console = request.form['console']
+    form = FormularioJogo(request.form)
+
+    if not form.validate_on_submit():
+        return redirect(url_for('cadastro'))
+    
+    nome = form.nome.data
+    categoria = form.nome.data
+    console = form.nome.data
 
     jogo = Jogos.query.filter_by(nome=nome).first()
 
@@ -97,6 +105,10 @@ def autenticar():
             flash(usuario.nickname + ' logado com sucesso!')
             proxima_pagina = request.form['next']
             return redirect(proxima_pagina)
+        else:
+            flash('Senha incorreta!')
+            return redirect(url_for('login'))
+            
     else:
         flash('Usuário não logado.')
         return redirect(url_for('login'))
