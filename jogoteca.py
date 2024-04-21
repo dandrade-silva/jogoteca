@@ -1,13 +1,18 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy  # TODO Configurar o DB
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)  # Cria uma instância da classe Flask
 
 app.config.from_pyfile('config.py')
 
 db = SQLAlchemy(app)
+csrf = CSRFProtect(app)
+bcrypt = Bcrypt(app)
 
-from views import *
+from views_game import *
+from views_user import *
 
 if __name__ == '__main__':
-    app.run(debug=True)  # Pode ser acessado por pessoas conectadas nessa rede
+    app.run(debug=True)
